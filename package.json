@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "postinstall": "npm rebuild rollup"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^41.4.2",
@@ -41,6 +40,6 @@
     "vite": "^7.1.2"
   },
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   }
 }
