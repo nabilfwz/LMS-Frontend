@@ -1,22 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
-import {
-  ClassicEditor,
-  Bold,
-  Essentials,
-  Heading,
-  Indent,
-  IndentBlock,
-  Italic,
-  Link,
-  List,
-  MediaEmbed,
-  Paragraph,
-  Table,
-  Undo,
-} from "ckeditor5";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-import "ckeditor5/ckeditor5.css";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mutateContentSchema } from "../../../utils/zodSchema.js";
@@ -31,6 +16,7 @@ export default function ManageContentCreatePage() {
   const content = useLoaderData();
   const { id, contentId } = useParams();
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -40,10 +26,10 @@ export default function ManageContentCreatePage() {
   } = useForm({
     resolver: zodResolver(mutateContentSchema),
     defaultValues: {
-      title: content?.title,
-      type: content?.type,
-      youtubeId: content?.youtubeId,
-      text: content?.text,
+      title: content?.title || "",
+      type: content?.type || "",
+      youtubeId: content?.youtubeId || "",
+      text: content?.text || "",
     },
   });
 
@@ -59,7 +45,7 @@ export default function ManageContentCreatePage() {
 
   const onSubmit = async (values) => {
     try {
-      if (content === undefined) {
+      if (!content) {
         await mutateCreate.mutateAsync({
           ...values,
           courseId: id,
@@ -70,10 +56,9 @@ export default function ManageContentCreatePage() {
           courseId: id,
         });
       }
-
       navigate(`/manager/courses/${id}`);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -90,9 +75,10 @@ export default function ManageContentCreatePage() {
           Course
         </span>
         <span className="last-of-type:after:content-[''] last-of-type:font-semibold">
-          {content === undefined ? "Add" : "Edit"} Content
+          {content ? "Edit" : "Add"} Content
         </span>
       </div>
+
       <header className="flex items-center justify-between gap-[30px]">
         <div className="flex items-center gap-[30px]">
           <div className="flex shrink-0 w-[150px] h-[100px] rounded-[20px] overflow-hidden bg-[#D9D9D9]">
@@ -104,23 +90,25 @@ export default function ManageContentCreatePage() {
           </div>
           <div>
             <h1 className="font-extrabold text-[28px] leading-[42px]">
-              {content === undefined ? "Add" : "Edit"} Content
+              {content ? "Edit" : "Add"} Content
             </h1>
-            <p className="text-[#838C9D] mt-[1]">
-              Give a best content for the course
+            <p className="text-[#838C9D] mt-[1px]">
+              Give the best content for the course
             </p>
           </div>
         </div>
       </header>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col w-[930px] rounded-[30px] p-[30px] gap-[30px] bg-[#F8FAFB]"
       >
+        {/* TITLE */}
         <div className="flex flex-col gap-[10px]">
           <label htmlFor="title" className="font-semibold">
             Content Title
           </label>
-          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
+          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 focus-within:ring-2 focus-within:ring-[#662FFF]">
             <img
               src="/assets/images/icons/note-favorite-black.svg"
               className="w-6 h-6"
@@ -130,19 +118,21 @@ export default function ManageContentCreatePage() {
               {...register("title")}
               type="text"
               id="title"
-              className="appearance-none outline-none w-full py-3 font-semibold placeholder:font-normal placeholder:text-[#838C9D] !bg-transparent"
-              placeholder="Write better name for your course"
+              className="appearance-none outline-none w-full py-3 font-semibold placeholder:text-[#838C9D] bg-transparent"
+              placeholder="Write a better name for your content"
             />
           </div>
-          <span className="error-message text-[#FF435A]">
-            {errors?.title?.message}
-          </span>
+          {errors?.title && (
+            <span className="text-[#FF435A]">{errors.title.message}</span>
+          )}
         </div>
+
+        {/* TYPE SELECT */}
         <div className="flex flex-col gap-[10px]">
           <label htmlFor="type" className="font-semibold">
             Select Type
           </label>
-          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
+          <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 focus-within:ring-2 focus-within:ring-[#662FFF]">
             <img
               src="/assets/images/icons/crown-black.svg"
               className="w-6 h-6"
@@ -151,7 +141,7 @@ export default function ManageContentCreatePage() {
             <select
               {...register("type")}
               id="type"
-              className="appearance-none outline-none w-full py-3 px-2 -mx-2 font-semibold placeholder:font-normal placeholder:text-[#838C9D] !bg-transparent"
+              className="appearance-none outline-none w-full py-3 px-2 font-semibold bg-transparent"
             >
               <option value="" hidden>
                 Choose content type
@@ -165,16 +155,18 @@ export default function ManageContentCreatePage() {
               alt="icon"
             />
           </div>
-          <span className="error-message text-[#FF435A]">
-            {errors?.type?.message}
-          </span>
+          {errors?.type && (
+            <span className="text-[#FF435A]">{errors.type.message}</span>
+          )}
         </div>
+
+        {/* YOUTUBE FIELD */}
         {type === "video" && (
           <div className="flex flex-col gap-[10px]">
             <label htmlFor="video" className="font-semibold">
               Youtube Video ID
             </label>
-            <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#662FFF]">
+            <div className="flex items-center w-full rounded-full border border-[#CFDBEF] gap-3 px-5 focus-within:ring-2 focus-within:ring-[#662FFF]">
               <img
                 src="/assets/images/icons/bill-black.svg"
                 className="w-6 h-6"
@@ -184,86 +176,48 @@ export default function ManageContentCreatePage() {
                 type="text"
                 {...register("youtubeId")}
                 id="video"
-                className="appearance-none outline-none w-full py-3 font-semibold placeholder:font-normal placeholder:text-[#838C9D] !bg-transparent"
-                placeholder="Write tagline for better copy"
+                className="appearance-none outline-none w-full py-3 font-semibold placeholder:text-[#838C9D] bg-transparent"
+                placeholder="Enter YouTube video ID"
               />
             </div>
-            <span className="error-message text-[#FF435A]">
-              {errors?.youtubeId?.message}
-            </span>
+            {errors?.youtubeId && (
+              <span className="text-[#FF435A]">{errors.youtubeId.message}</span>
+            )}
           </div>
         )}
+
+        {/* CKEDITOR FIELD */}
         {type === "text" && (
           <div className="flex flex-col gap-[10px]">
             <label className="font-semibold">Content Text</label>
-            {/* <div id="editor">
-                    </div> */}
             <CKEditor
               editor={ClassicEditor}
-              config={{
-                licenseKey:
-                  "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NjA3NDU1OTksImp0aSI6IjcwODkwOTk1LThjOGItNDg3OC04NmU1LWY1YjZmNGU0ODM5YyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6Ijg4ZGQ4YzQwIn0.7hGnbn6nIgeDCCgmZwe2Cff54P1V5WAjJeRxpjG-WpTGHCxIS8T008MLZONQQ7HaQ2KP7PS7MBpSGkRl8yr3pg",
-                toolbar: [
-                  "undo",
-                  "redo",
-                  "|",
-                  "heading",
-                  "|",
-                  "bold",
-                  "italic",
-                  "|",
-                  "link",
-                  "insertTable",
-                  "mediaEmbed",
-                  "|",
-                  "bulletedList",
-                  "numberedList",
-                  "indent",
-                  "outdent",
-                ],
-                plugins: [
-                  Bold,
-                  Essentials,
-                  Heading,
-                  Indent,
-                  IndentBlock,
-                  Italic,
-                  Link,
-                  List,
-                  MediaEmbed,
-                  Paragraph,
-                  Table,
-                  Undo,
-                ],
-                initialData: content?.text,
-              }}
+              data={content?.text || ""}
               onChange={(_, editor) => {
                 const data = editor.getData();
                 setValue("text", data);
               }}
             />
-            <span className="error-message text-[#FF435A]">
-              {errors?.text?.message}
-            </span>
+            {errors?.text && (
+              <span className="text-[#FF435A]">{errors.text.message}</span>
+            )}
           </div>
         )}
+
+        {/* BUTTONS */}
         <div className="flex items-center gap-[14px]">
           <button
             type="button"
-            className="w-full rounded-full border border-[#060A23] p-[14px_20px] font-semibold text-nowrap cursor-pointer"
+            className="w-full rounded-full border border-[#060A23] p-[14px_20px] font-semibold"
           >
             Save as Draft
           </button>
           <button
             type="submit"
-            disabled={
-              content === undefined
-                ? mutateCreate.isLoading
-                : mutateUpdate.isLoading
-            }
-            className="w-full rounded-full p-[14px_20px] font-semibold text-[#FFFFFF] bg-[#662FFF] text-nowrap"
+            disabled={content ? mutateUpdate.isLoading : mutateCreate.isLoading}
+            className="w-full rounded-full p-[14px_20px] font-semibold text-white bg-[#662FFF]"
           >
-            {content === undefined ? "Add" : "Edit"} Content Now
+            {content ? "Edit" : "Add"} Content Now
           </button>
         </div>
       </form>
