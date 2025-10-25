@@ -43,7 +43,7 @@ const overviews=useLoaderData()
             />
             <div>
               <p className="font-extrabold text-2xl leading-[36px]">
-                {overviews.totalStudents}
+                {overviews?.totalStudents}
               </p>
               <p className="text-[#838C9D]">Total Students</p>
             </div>
@@ -56,7 +56,7 @@ const overviews=useLoaderData()
             />
             <div>
               <p className="font-extrabold text-2xl leading-[36px]">
-                {overviews.totalCourses}
+                {overviews?.totalCourses}
               </p>
               <p className="text-[#838C9D]">Total Courses</p>
             </div>
@@ -69,7 +69,7 @@ const overviews=useLoaderData()
             />
             <div>
               <p className="font-extrabold text-2xl leading-[36px]">
-                {overviews.totalVideos}
+                {overviews?.totalVideos}
               </p>
               <p className="text-[#838C9D]">Video Content</p>
             </div>
@@ -82,7 +82,7 @@ const overviews=useLoaderData()
             />
             <div>
               <p className="font-extrabold text-2xl leading-[36px]">
-                {overviews.totalTexts}
+                {overviews?.totalTexts}
               </p>
               <p className="text-[#838C9D]">Text Content</p>
             </div>
